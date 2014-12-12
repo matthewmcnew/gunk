@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloudfoundry/gunk/timeprovider"
+	"github.com/matthewmcnew/gunk/timeprovider"
 )
 
 type fakeTicker struct {

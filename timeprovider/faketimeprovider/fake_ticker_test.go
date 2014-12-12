@@ -3,7 +3,7 @@ package faketimeprovider_test
 import (
 	"time"
 
-	"github.com/cloudfoundry/gunk/timeprovider/faketimeprovider"
+	"github.com/matthewmcnew/gunk/timeprovider/faketimeprovider"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

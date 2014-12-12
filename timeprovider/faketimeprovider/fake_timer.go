@@ -2,6 +2,7 @@ package faketimeprovider
 
 import (
 	"sync"
+	"fmt"
 	"time"
 )
 
@@ -51,15 +52,24 @@ func (ft *fakeTimer) Stop() bool {
 	return active
 }
 
+func (ft *fakeTimer) completion() time.Time {
+	return ft.completionTime
+}
+
 func (ft *fakeTimer) timeUpdated(now time.Time) {
 	var fire bool
 
 	ft.mutex.Lock()
 	if !ft.completionTime.IsZero() {
+	fmt.Println("inside fire calculator")
+	fmt.Println("now")
+	fmt.Println(now)
+	fmt.Println("compeletion time")
+	fmt.Println(ft.completionTime)
 		fire = now.After(ft.completionTime) || now.Equal(ft.completionTime)
 	}
 	ft.mutex.Unlock()
-
+	fmt.Println(fire)
 	if fire {
 		select {
 		case ft.channel <- now:

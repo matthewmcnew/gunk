@@ -2,26 +2,23 @@ package faketimeprovider
 
 import (
 	"sync"
+	"fmt"
 	"time"
 
-	"github.com/cloudfoundry/gunk/timeprovider"
+	"github.com/matthewmcnew/gunk/timeprovider"
 )
-
-type timeWatcher interface {
-	timeUpdated(time.Time)
-}
 
 type FakeTimeProvider struct {
 	sync.Mutex
 	now time.Time
 
-	watchers map[timeWatcher]struct{}
+	watchers timerList
 }
 
 func New(now time.Time) *FakeTimeProvider {
 	return &FakeTimeProvider{
 		now:      now,
-		watchers: make(map[timeWatcher]struct{}),
+		watchers: make(timerList, 0, 0),
 	}
 }
 
@@ -36,14 +33,11 @@ func (provider *FakeTimeProvider) Increment(duration time.Duration) {
 	provider.Mutex.Lock()
 	now := provider.now.Add(duration)
 	provider.now = now
-
-	watchers := make([]timeWatcher, 0, len(provider.watchers))
-	for w, _ := range provider.watchers {
-		watchers = append(watchers, w)
-	}
 	provider.Mutex.Unlock()
 
-	for _, w := range watchers {
+	fmt.Println(len(provider.watchers))
+
+	for _, w := range provider.watchers {
 		w.timeUpdated(now)
 	}
 }
@@ -76,7 +70,7 @@ func (provider *FakeTimeProvider) WatcherCount() int {
 
 func (provider *FakeTimeProvider) addTimeWatcher(tw timeWatcher) {
 	provider.Mutex.Lock()
-	provider.watchers[tw] = struct{}{}
+	provider.watchers.Push(tw)
 	provider.Mutex.Unlock()
 
 	tw.timeUpdated(provider.Now())
@@ -84,6 +78,6 @@ func (provider *FakeTimeProvider) addTimeWatcher(tw timeWatcher) {
 
 func (provider *FakeTimeProvider) removeTimeWatcher(tw timeWatcher) {
 	provider.Mutex.Lock()
-	delete(provider.watchers, tw)
+	//	delete(provider.watchers, tw)
 	provider.Mutex.Unlock()
 }
